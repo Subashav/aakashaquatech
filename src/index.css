@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --app-bg: #F7F9FC;
+    --surface-primary: #FFFFFF;
+    --surface-secondary: #F1F5F9;
+    --sidebar-bg: #0B172A;
+    --sidebar-hover: #132A43;
+    --brand-primary: #075985;
+    --brand-action: #0369A1;
+    --aqua-accent: #0891B2;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
+    --border-color: #E2E8F0;
+    --status-success: #16A34A;
+    --status-warning: #D97706;
+    --status-error: #DC2626;
+    --status-info: #2563EB;
+  }
+
+  body {
+    background-color: #F7F9FC;
+    color: #0F172A;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Compact professional scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F1F5F9;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
