@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../utils/formatters';
 
 interface ModalProps {
@@ -29,8 +30,6 @@ export const Modal: React.FC<ModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
-
   const maxWidthStyles = {
     sm: 'max-w-sm',
     md: 'max-w-md',
@@ -40,43 +39,54 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4 text-center">
-        {/* Backdrop */}
-        <div
-          className="fixed inset-0 bg-[#0B172A]/40 backdrop-blur-none transition-opacity"
-          onClick={onClose}
-        />
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-screen items-center justify-center p-4 text-center">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 dark:bg-black/85 backdrop-blur-sm"
+              onClick={onClose}
+            />
 
-        <div
-          className={cn(
-            'relative w-full transform overflow-hidden rounded-sm bg-white border border-[#E2E8F0] text-left shadow-modal transition-all my-8',
-            maxWidthStyles[maxWidth]
-          )}
-        >
-          {/* Header */}
-          {(title || subtitle) && (
-            <div className="flex items-center justify-between border-b border-[#E2E8F0] px-5 py-4 bg-white">
-              <div>
-                {title && (
-                  <h3 className="text-sm font-bold text-[#0F172A] tracking-tight">{title}</h3>
-                )}
-                {subtitle && <p className="text-2xs text-[#475569] mt-0.5">{subtitle}</p>}
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="text-[#94A3B8] hover:text-[#0F172A] p-1 hover:bg-[#F1F5F9] rounded-sm transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          )}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className={cn(
+                'relative w-full transform overflow-hidden rounded-md bg-white dark:bg-black border border-slate-200 dark:border-[#222222] text-left shadow-modal my-8 z-10',
+                maxWidthStyles[maxWidth]
+              )}
+            >
+              {/* Header */}
+              {(title || subtitle) && (
+                <div className="flex items-center justify-between border-b border-slate-200 dark:border-[#222222] px-5 py-4 bg-white dark:bg-black">
+                  <div>
+                    {title && (
+                      <h3 className="text-sm font-bold text-black dark:text-white tracking-tight">{title}</h3>
+                    )}
+                    {subtitle && <p className="text-2xs text-slate-500 dark:text-zinc-400 mt-0.5">{subtitle}</p>}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="text-slate-400 hover:text-black dark:text-zinc-400 dark:hover:text-white p-1 hover:bg-slate-100 dark:hover:bg-[#141414] rounded-sm transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
 
-          {/* Body */}
-          <div className="px-5 py-5">{children}</div>
+              {/* Body */}
+              <div className="px-5 py-5 text-black dark:text-white">{children}</div>
+            </motion.div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 };

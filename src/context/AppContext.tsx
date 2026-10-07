@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   NavigationTab,
   Lead,
@@ -12,6 +12,8 @@ import {
   AttentionItem,
   LeadStage,
   ServiceStatus,
+  ThemeMode,
+  AuthUser,
 } from '../types';
 import {
   INITIAL_LEADS,
@@ -33,7 +35,57 @@ interface ToastData {
   type: 'info' | 'success' | 'warning' | 'error';
 }
 
+export const DEFAULT_ADMIN: AuthUser = {
+  id: 'USR-001',
+  name: 'Arunachalam S.',
+  email: 'admin@aakashaqua.com',
+  role: 'Operations Director',
+  branch: 'All Branches (TN)',
+  avatarInitials: 'AS',
+};
+
+export const DEMO_ACCOUNTS: Record<string, { user: AuthUser; pass: string }> = {
+  'admin@aakashaqua.com': {
+    user: DEFAULT_ADMIN,
+    pass: 'admin123',
+  },
+  'service@aakashaqua.com': {
+    user: {
+      id: 'USR-002',
+      name: 'Senthil Nathan',
+      email: 'service@aakashaqua.com',
+      role: 'Regional Service Head',
+      branch: 'Salem Depot',
+      avatarInitials: 'SN',
+    },
+    pass: 'service123',
+  },
+  'arun.tech@aakashaqua.com': {
+    user: {
+      id: 'USR-003',
+      name: 'Arun Field Eng',
+      email: 'arun.tech@aakashaqua.com',
+      role: 'Senior Field Tech',
+      branch: 'Coimbatore Hub',
+      avatarInitials: 'AF',
+    },
+    pass: 'field123',
+  },
+};
+
 interface AppContextType {
+  // Theme
+  theme: ThemeMode;
+  actualTheme: 'light' | 'dark';
+  setTheme: (theme: ThemeMode) => void;
+
+  // Auth Session
+  currentUser: AuthUser | null;
+  isAuthenticated: boolean;
+  login: (credentials: { email: string; password: string; rememberMe?: boolean }) => Promise<{ success: boolean; error?: string }>;
+  logout: () => void;
+
+  // Navigation
   currentTab: NavigationTab;
   setCurrentTab: (tab: NavigationTab) => void;
   activeBranch: string;
@@ -93,11 +145,138 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Theme state
+  const [theme, setThemeState] = useState<ThemeMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('aat_theme') as ThemeMode;
+      if (saved === 'light' || saved === 'dark' || saved === 'system') return saved;
+    }
+    return 'system';
+  });
+
+  const [systemIsDark, setSystemIsDark] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e: MediaQueryListEvent) => setSystemIsDark(e.matches);
+    media.addEventListener('change', handler);
+    return () => media.removeEventListener('change', handler);
+  }, []);
+
+  const actualTheme: 'light' | 'dark' = theme === 'system' ? (systemIsDark ? 'dark' : 'light') : theme;
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+    if (actualTheme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [actualTheme]);
+
+  const setTheme = (newTheme: ThemeMode) => {
+    setThemeState(newTheme);
+    localStorage.setItem('aat_theme', newTheme);
+  };
+
+  // Auth session
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
+    if (typeof window !== 'undefined') {
+      const local = localStorage.getItem('aat_auth_user');
+      if (local) {
+        try {
+          return JSON.parse(local);
+        } catch {
+          // ignore
+        }
+      }
+      const session = sessionStorage.getItem('aat_auth_user');
+      if (session) {
+        try {
+          return JSON.parse(session);
+        } catch {
+          // ignore
+        }
+      }
+    }
+    return null;
+  });
+
+  const isAuthenticated = currentUser !== null;
+
+  const login = async ({
+    email,
+    password,
+    rememberMe = false,
+  }: {
+    email: string;
+    password: string;
+    rememberMe?: boolean;
+  }): Promise<{ success: boolean; error?: string }> => {
+    // Artificial small delay for realistic authentication feel
+    await new Promise((res) => setTimeout(res, 500));
+
+    const cleanEmail = email.trim().toLowerCase();
+    const demo = DEMO_ACCOUNTS[cleanEmail];
+
+    let authenticatedUser: AuthUser | null = null;
+
+    if (demo) {
+      if (demo.pass !== password.trim()) {
+        return { success: false, error: 'Invalid password. Please check and try again.' };
+      }
+      authenticatedUser = demo.user;
+    } else {
+      // Allow custom email sign in if password is >= 6 chars
+      if (!cleanEmail.includes('@') || !cleanEmail.includes('.')) {
+        return { success: false, error: 'Please enter a valid business email address.' };
+      }
+      if (password.length < 6) {
+        return { success: false, error: 'Password must be at least 6 characters.' };
+      }
+      const localPart = cleanEmail.split('@')[0];
+      const initials = (localPart.slice(0, 2) || 'US').toUpperCase();
+      authenticatedUser = {
+        id: `USR-${Math.floor(100 + Math.random() * 900)}`,
+        name: localPart.charAt(0).toUpperCase() + localPart.slice(1),
+        email: cleanEmail,
+        role: 'Operations Director',
+        branch: 'Coimbatore Hub',
+        avatarInitials: initials,
+      };
+    }
+
+    setCurrentUser(authenticatedUser);
+    if (rememberMe) {
+      localStorage.setItem('aat_auth_user', JSON.stringify(authenticatedUser));
+    } else {
+      sessionStorage.setItem('aat_auth_user', JSON.stringify(authenticatedUser));
+    }
+    showToast(`Welcome back, ${authenticatedUser.name}`, 'success');
+    return { success: true };
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('aat_auth_user');
+    sessionStorage.removeItem('aat_auth_user');
+    showToast('Signed out of session safely.', 'info');
+  };
+
+  // Navigation
   const [currentTab, setCurrentTab] = useState<NavigationTab>('dashboard');
   const [activeBranch, setActiveBranch] = useState<string>('All Branches');
   const [isSidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [isEngineerMobileMode, setEngineerMobileMode] = useState<boolean>(false);
 
+  // Collections
   const [leads, setLeads] = useState<Lead[]>(INITIAL_LEADS);
   const [customers, setCustomers] = useState<Customer[]>(INITIAL_CUSTOMERS);
   const [services, setServices] = useState<ServiceJob[]>(INITIAL_SERVICES);
@@ -161,7 +340,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               date: 'Today',
               title: `Lead moved to ${newStage}`,
               description: `Stage progression triggered in CRM pipeline.`,
-              actor: 'Admin',
+              actor: currentUser ? currentUser.name : 'Admin',
               badge: 'Pipeline',
             },
             ...lead.timeline,
@@ -182,7 +361,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       email: data.email || 'contact@client.in',
       requirement: data.requirement || 'Commercial RO System',
       dealValue: Number(data.dealValue) || 100000,
-      owner: data.owner || 'Arun Sales',
+      owner: data.owner || (currentUser ? currentUser.name : 'Arun Sales'),
       stage: 'NEW',
       source: data.source || 'Website',
       websitePage: data.websitePage || '/contact-us',
@@ -199,7 +378,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           date: 'Today',
           title: 'Lead record generated',
           description: `Created with deal potential ₹${(Number(data.dealValue) || 100000).toLocaleString('en-IN')}`,
-          actor: 'Admin',
+          actor: currentUser ? currentUser.name : 'Admin',
           badge: 'Create',
         },
       ],
@@ -397,12 +576,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           : inv
       )
     );
-    showToast(`Payment of ₹${invoices.find((i) => i.id === invoiceId)?.balanceDue.toLocaleString('en-IN')} marked as received.`, 'success');
+    showToast(`Payment marked as received.`, 'success');
   };
 
   return (
     <AppContext.Provider
       value={{
+        theme,
+        actualTheme,
+        setTheme,
+        currentUser,
+        isAuthenticated,
+        login,
+        logout,
         currentTab,
         setCurrentTab,
         activeBranch,

@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
@@ -57,7 +58,7 @@ export const AppShell: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-surface-app text-text-primary font-sans selection:bg-brand-action/20 selection:text-brand-primary">
+    <div className="min-h-screen flex bg-white dark:bg-black text-black dark:text-white font-sans selection:bg-[#0369A1]/20 selection:text-[#0369A1] transition-colors duration-150">
       {/* Collapsible Sidebar */}
       <Sidebar />
 
@@ -66,9 +67,21 @@ export const AppShell: React.FC = () => {
         {/* Topbar */}
         <Topbar />
 
-        {/* Dynamic Page Container */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 bg-surface-app">
-          <div className="max-w-7xl mx-auto">{renderActiveView()}</div>
+        {/* Dynamic Page Container with subtle Framer Motion Transition */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 bg-white dark:bg-black">
+          <div className="max-w-7xl mx-auto">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={isEngineerMobileMode ? 'mobile' : currentTab}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
+              >
+                {renderActiveView()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </main>
       </div>
 

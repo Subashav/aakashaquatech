@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, ArrowRight, User, Wrench, FileText, Package, Briefcase, PhoneCall, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import { formatINR } from '../../utils/formatters';
 
@@ -97,8 +98,6 @@ export const CommandPalette: React.FC = () => {
     };
   }, [query, leads, customers, services, invoices, inventory, engineers]);
 
-  if (!isCommandPaletteOpen) return null;
-
   const totalResults =
     searchResults.leads.length +
     searchResults.customers.length +
@@ -108,15 +107,26 @@ export const CommandPalette: React.FC = () => {
     searchResults.engineers.length;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-start justify-center pt-16 px-4">
-        {/* Backdrop */}
-        <div
-          className="fixed inset-0 bg-[#0B172A]/40 backdrop-blur-none transition-opacity"
-          onClick={() => setCommandPaletteOpen(false)}
-        />
+    <AnimatePresence>
+      {isCommandPaletteOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-screen items-start justify-center pt-16 px-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-[#0B172A]/50 dark:bg-black/70 backdrop-blur-sm"
+              onClick={() => setCommandPaletteOpen(false)}
+            />
 
-        <div className="relative w-full max-w-2xl transform overflow-hidden rounded-sm bg-white border border-[#E2E8F0] shadow-modal text-left">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -8 }}
+              transition={{ duration: 0.18 }}
+              className="relative w-full max-w-2xl transform overflow-hidden rounded-md bg-white dark:bg-[#0B1322] border border-[#E2E8F0] dark:border-[#1E2E48] shadow-modal text-left z-10"
+            >
           {/* Search Input Bar */}
           <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#E2E8F0] bg-white">
             <Search className="w-5 h-5 text-[#94A3B8] shrink-0" />
@@ -333,12 +343,15 @@ export const CommandPalette: React.FC = () => {
           </div>
 
           {/* Footer note */}
-          <div className="px-4 py-2 border-t border-[#E2E8F0] bg-[#F8FAFC] flex items-center justify-between text-2xs text-[#94A3B8]">
+          <div className="px-4 py-2 border-t border-[#E2E8F0] dark:border-[#1E2E48] bg-[#F8FAFC] dark:bg-[#111C30] flex items-center justify-between text-2xs text-[#94A3B8]">
             <span>Navigation: ↑ ↓ to navigate · Enter to select</span>
             <span>Aakash Aqua Tech Enterprise SaaS</span>
           </div>
+            </motion.div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 };
+

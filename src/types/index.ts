@@ -232,3 +232,15 @@ export interface AttentionItem {
   actionTab: NavigationTab;
   recordId: string;
 }
+
+export type ThemeMode = 'light' | 'dark' | 'system';
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'Operations Director' | 'Regional Service Head' | 'Senior Field Tech' | 'Admin';
+  branch: string;
+  avatarInitials: string;
+}
+

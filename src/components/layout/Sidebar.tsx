@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import { NavigationTab } from '../../types';
 import { cn } from '../../utils/formatters';
@@ -59,29 +60,29 @@ export const Sidebar: React.FC = () => {
   return (
     <aside
       className={cn(
-        'bg-[#0B172A] text-[#CBD5E1] border-r border-[#1E293B] flex flex-col transition-all duration-200 select-none z-30 shrink-0 h-screen sticky top-0',
+        'bg-white dark:bg-black text-slate-700 dark:text-zinc-300 border-r border-slate-200 dark:border-[#222222] flex flex-col transition-all duration-200 select-none z-30 shrink-0 h-screen sticky top-0',
         isSidebarCollapsed ? 'w-16' : 'w-60'
       )}
     >
       {/* Brand Header */}
-      <div className="h-14 flex items-center justify-between px-3.5 border-b border-[#1E293B]">
+      <div className="h-14 flex items-center justify-between px-3.5 border-b border-slate-200 dark:border-[#222222]">
         <div
           onClick={() => {
             setCurrentTab('dashboard');
             setEngineerMobileMode(false);
           }}
-          className="flex items-center gap-2.5 cursor-pointer min-w-0"
+          className="flex items-center gap-2.5 cursor-pointer min-w-0 group"
         >
-          {/* Professional Solid Monogram (No gradients, no droplets) */}
-          <div className="w-7 h-7 rounded-sm bg-[#075985] text-white flex items-center justify-center font-bold text-xs tracking-wider shrink-0 border border-[#0891B2]/30">
+          {/* Professional Solid Monogram */}
+          <div className="w-7 h-7 rounded-sm bg-[#0369A1] text-white flex items-center justify-center font-bold text-xs tracking-wider shrink-0 border border-[#0891B2]/50 shadow-xs group-hover:border-[#38BDF8] transition-colors">
             AA
           </div>
           {!isSidebarCollapsed && (
             <div className="min-w-0">
-              <div className="text-xs font-bold text-white tracking-tight truncate">
+              <div className="text-xs font-bold text-black dark:text-white tracking-tight truncate">
                 Aakash Aqua Tech
               </div>
-              <div className="text-2xs text-[#94A3B8] font-medium truncate uppercase tracking-widest">
+              <div className="text-2xs text-slate-500 dark:text-zinc-500 font-medium truncate uppercase tracking-widest">
                 Business Platform
               </div>
             </div>
@@ -90,7 +91,7 @@ export const Sidebar: React.FC = () => {
 
         <button
           onClick={toggleSidebar}
-          className="p-1 text-[#94A3B8] hover:text-white hover:bg-[#132A43] rounded-sm transition-colors"
+          className="p-1 text-slate-400 dark:text-zinc-500 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#141414] rounded-sm transition-colors"
           title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {isSidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
@@ -102,7 +103,7 @@ export const Sidebar: React.FC = () => {
         {/* Workspace Section */}
         <div>
           {!isSidebarCollapsed && (
-            <div className="px-2.5 pb-1.5 text-2xs font-bold uppercase tracking-widest text-[#94A3B8]">
+            <div className="px-2.5 pb-1.5 text-2xs font-bold uppercase tracking-widest text-slate-400 dark:text-zinc-500">
               Workspace
             </div>
           )}
@@ -110,9 +111,10 @@ export const Sidebar: React.FC = () => {
             {workspaceNav.map((item) => {
               const isActive = currentTab === item.tab && !isEngineerMobileMode;
               return (
-                <button
+                <motion.button
                   key={item.tab}
                   type="button"
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     setCurrentTab(item.tab);
                     setEngineerMobileMode(false);
@@ -121,15 +123,15 @@ export const Sidebar: React.FC = () => {
                   className={cn(
                     'w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-sm text-xs font-medium transition-colors group relative',
                     isActive
-                      ? 'bg-[#075985] text-white shadow-subtle'
-                      : 'text-[#CBD5E1] hover:text-white hover:bg-[#132A43]'
+                      ? 'bg-[#0369A1] text-white shadow-xs font-semibold'
+                      : 'text-slate-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#141414]'
                   )}
                 >
                   {/* Subtle active indicator bar */}
                   {isActive && (
-                    <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-[#0891B2] rounded-r-xs" />
+                    <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-[#38BDF8] rounded-r-xs" />
                   )}
-                  <span className={cn('shrink-0', isActive ? 'text-white' : 'text-[#94A3B8] group-hover:text-white')}>
+                  <span className={cn('shrink-0', isActive ? 'text-white' : 'text-slate-400 dark:text-zinc-500 group-hover:text-black dark:group-hover:text-white')}>
                     {item.icon}
                   </span>
                   {!isSidebarCollapsed && (
@@ -140,14 +142,14 @@ export const Sidebar: React.FC = () => {
                       className={cn(
                         'text-2xs px-1.5 py-0.2 rounded-xs font-semibold uppercase tracking-wider',
                         isActive
-                          ? 'bg-[#0369A1] text-white'
-                          : 'bg-[#132A43] text-[#CBD5E1] border border-[#1E293B]'
+                          ? 'bg-white/20 text-white'
+                          : 'bg-slate-100 dark:bg-[#141414] text-slate-600 dark:text-zinc-400 border border-slate-200 dark:border-[#222222]'
                       )}
                     >
                       {item.badge}
                     </span>
                   )}
-                </button>
+                </motion.button>
               );
             })}
           </nav>
@@ -156,7 +158,7 @@ export const Sidebar: React.FC = () => {
         {/* Management Section */}
         <div>
           {!isSidebarCollapsed && (
-            <div className="px-2.5 pb-1.5 text-2xs font-bold uppercase tracking-widest text-[#94A3B8]">
+            <div className="px-2.5 pb-1.5 text-2xs font-bold uppercase tracking-widest text-slate-400 dark:text-zinc-500">
               Management
             </div>
           )}
@@ -164,9 +166,10 @@ export const Sidebar: React.FC = () => {
             {managementNav.map((item) => {
               const isActive = currentTab === item.tab && !isEngineerMobileMode;
               return (
-                <button
+                <motion.button
                   key={item.tab}
                   type="button"
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     setCurrentTab(item.tab);
                     setEngineerMobileMode(false);
@@ -175,20 +178,20 @@ export const Sidebar: React.FC = () => {
                   className={cn(
                     'w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-sm text-xs font-medium transition-colors group relative',
                     isActive
-                      ? 'bg-[#075985] text-white shadow-subtle'
-                      : 'text-[#CBD5E1] hover:text-white hover:bg-[#132A43]'
+                      ? 'bg-[#0369A1] text-white shadow-xs font-semibold'
+                      : 'text-slate-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#141414]'
                   )}
                 >
                   {isActive && (
-                    <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-[#0891B2] rounded-r-xs" />
+                    <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-[#38BDF8] rounded-r-xs" />
                   )}
-                  <span className={cn('shrink-0', isActive ? 'text-white' : 'text-[#94A3B8] group-hover:text-white')}>
+                  <span className={cn('shrink-0', isActive ? 'text-white' : 'text-slate-400 dark:text-zinc-500 group-hover:text-black dark:group-hover:text-white')}>
                     {item.icon}
                   </span>
                   {!isSidebarCollapsed && (
                     <span className="truncate flex-1 text-left">{item.label}</span>
                   )}
-                </button>
+                </motion.button>
               );
             })}
           </nav>
@@ -197,12 +200,12 @@ export const Sidebar: React.FC = () => {
 
       {/* Footer Info */}
       {!isSidebarCollapsed && (
-        <div className="p-3 border-t border-[#1E293B] text-2xs text-[#94A3B8]">
+        <div className="p-3 border-t border-slate-200 dark:border-[#222222] text-2xs text-slate-500 dark:text-zinc-500">
           <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span className="truncate">Website sync live · 3m ago</span>
           </div>
-          <div className="text-[#64748B] text-2xs mt-1">Tamil Nadu Operations</div>
+          <div className="text-slate-400 dark:text-zinc-600 text-2xs mt-1">Tamil Nadu Operations</div>
         </div>
       )}
     </aside>

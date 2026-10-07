@@ -80,9 +80,9 @@ export const EngineerMobileView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-[#F7F9FC] text-[#0F172A] border-x border-[#E2E8F0] shadow-modal flex flex-col font-sans">
+    <div className="max-w-md mx-auto min-h-screen bg-[#F7F9FC] dark:bg-[#070C15] text-[#0F172A] dark:text-[#F8FAFC] border-x border-[#E2E8F0] dark:border-[#1E2E48] shadow-modal flex flex-col font-sans">
       {/* Top Mobile Brand Bar */}
-      <div className="bg-[#0B172A] text-white px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-subtle border-b border-[#132A43]">
+      <div className="bg-[#0B172A] dark:bg-[#060B14] text-white px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-subtle border-b border-[#132A43] dark:border-[#1E2E48]">
         <div className="flex items-center gap-2">
           {activeJob && (
             <button
